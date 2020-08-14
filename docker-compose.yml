@@ -1,0 +1,60 @@
+version: '3.7'
+services:
+  bazo-miner:
+    container_name: bazo-miner
+    image: golang
+    working_dir: /go/src/bazo-miner/
+    command: bash -c "go build && ./bazo-miner start --database StoreA.db --address 127.0.0.1:8000 --bootstrap 127.0.0.1:8000 --wallet WalletA.txt --commitment CommitmentA.txt --multisig WalletA.txt --rootwallet WalletA.txt --rootcommitment CommitmentA.txt --root-chparams ChParamsA.txt"
+    volumes:
+      - ../bazo-miner:/go/src/bazo-miner/
+    expose:
+      - "8000"
+    networks:
+      - bazo
+
+  bazo-client:
+    container_name: bazo-client
+    depends_on: 
+      - bazo-miner
+    image: golang
+    working_dir: /go/src/bazo-client/
+    command: bash -c "go build && sleep 5s && ./bazo-client rest"
+    volumes:
+      - ../bazo-client:/go/src/bazo-client/
+      - ../bazo-miner:/go/src/bazo-miner/
+    ports:
+      - "80:8010"
+    networks:
+      - bazo
+
+  bazo-block-explorer:
+    container_name: bazo-block-explorer
+    image: golang
+    working_dir: /go/src/bazo-block-explorer/
+    command: bash -c "go build && sleep 5s && ./bazo-block-explorer data :8080 bazo bazo"
+    depends_on:
+      - psql
+      - bazo-miner
+      - bazo-client
+    volumes:
+      - ../bazo-block-explorer:/go/src/bazo-block-explorer/
+      - ../bazo-miner:/go/src/bazo-miner/
+    ports:
+      - "8080:8080"
+    networks:
+      - bazo
+
+  psql:
+    container_name: psql
+    image: postgres
+    environment:
+      POSTGRES_DB: blockexplorerdb
+      POSTGRES_USER: bazo
+      POSTGRES_PASSWORD: bazo
+    ports:
+      - "5432:5432"
+    networks:
+      - bazo
+
+networks:
+  bazo:
