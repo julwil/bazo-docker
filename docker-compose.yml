@@ -2,11 +2,11 @@ version: '3.7'
 services:
   bazo-miner:
     container_name: bazo-miner
-    build: ../bazo-miner/.
+    build: ../bazo-miner/. # Points to the Docker file in bazo-miner/
     volumes:
-      - ../bazo-miner:/go/src/bazo-miner/
+      - ../bazo-miner:/go/src/bazo-miner/ # Share this volume with the container.
     expose:
-      - "8000"
+      - "8000" # This is the port where the miner accepts connections.
     networks:
       - bazo
 
@@ -16,12 +16,12 @@ services:
       context: ../ # We need the miner context as well when we build the client.
       dockerfile: bazo-client/Dockerfile # Dockerfile is relative to 'context' set inabove (!!!)
     depends_on: 
-      - bazo-miner
+      - bazo-miner # The miner must be launched before the client.
     volumes:
       - ../bazo-client:/go/src/bazo-client/
       - ../bazo-miner:/go/src/bazo-miner/
     ports:
-      - "80:8010"
+      - "80:8010" # The REST API is available on api.bazo.local:80. We map this port to 8010 in the container where the client is listening.
     networks:
       - bazo
 
@@ -38,7 +38,7 @@ services:
       - ../bazo-block-explorer:/go/src/bazo-block-explorer/
       - ../bazo-miner:/go/src/bazo-miner/
     ports:
-      - "8080:8080"
+      - "8080:8080" # The block explorer is available on bazo.local:8080 on the host machine.
     networks:
       - bazo
     restart: on-failure # This is necessary because postgres is not ready yet... Although we specified psql in depends_on
@@ -47,11 +47,11 @@ services:
     container_name: psql
     image: postgres
     environment:
-      POSTGRES_DB: blockexplorerdb
+      POSTGRES_DB: blockexplorerdb # When changing these variables, the Dockerfile in bazo-block-explorer must be updated as well (!!!)
       POSTGRES_USER: bazo
       POSTGRES_PASSWORD: bazo
     ports:
-      - "5432:5432"
+      - "5432:5432" # This is the default port of Postgres
     networks:
       - bazo
 
