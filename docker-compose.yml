@@ -2,9 +2,7 @@ version: '3.7'
 services:
   bazo-miner:
     container_name: bazo-miner
-    image: golang
-    working_dir: /go/src/bazo-miner/
-    command: bash -c "go build && ./bazo-miner start --database StoreA.db --address 127.0.0.1:8000 --bootstrap 127.0.0.1:8000 --wallet WalletA.txt --commitment CommitmentA.txt --multisig WalletA.txt --rootwallet WalletA.txt --rootcommitment CommitmentA.txt --root-chparams ChParamsA.txt"
+    build: ../bazo-miner/.
     volumes:
       - ../bazo-miner:/go/src/bazo-miner/
     expose:
@@ -14,11 +12,11 @@ services:
 
   bazo-client:
     container_name: bazo-client
+    build:
+      context: ../ # We need the miner context as well when we build the client.
+      dockerfile: bazo-client/Dockerfile # Dockerfile is relative to 'context' set inabove (!!!)
     depends_on: 
       - bazo-miner
-    image: golang
-    working_dir: /go/src/bazo-client/
-    command: bash -c "go build && sleep 5s && ./bazo-client rest"
     volumes:
       - ../bazo-client:/go/src/bazo-client/
       - ../bazo-miner:/go/src/bazo-miner/
@@ -29,9 +27,9 @@ services:
 
   bazo-block-explorer:
     container_name: bazo-block-explorer
-    image: golang
-    working_dir: /go/src/bazo-block-explorer/
-    command: bash -c "go build && sleep 5s && ./bazo-block-explorer data :8080 bazo bazo"
+    build:
+      context: ../ # We need the miner context as well when we build the explorer.
+      dockerfile: bazo-block-explorer/Dockerfile # Dockerfile is relative to 'context' set inabove (!!!)
     depends_on:
       - psql
       - bazo-miner
@@ -43,6 +41,7 @@ services:
       - "8080:8080"
     networks:
       - bazo
+    restart: on-failure # This is necessary because postgres is not ready yet... Although we specified psql in depends_on
 
   psql:
     container_name: psql
