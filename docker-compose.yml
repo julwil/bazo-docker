@@ -2,9 +2,9 @@ version: '3.7'
 services:
   bazo-miner:
     container_name: bazo-miner
-    build: ../bazo-miner/. # Points to the Docker file in bazo-miner/
+    build: ../bazo-miner/. # Points to the Dockerfile in bazo-miner/
     volumes:
-      - ../bazo-miner:/go/src/bazo-miner/ # Share this volume with the container.
+      - ../bazo-miner:/go/src/bazo-miner/ # Map host directory to container directory. The files will be synced.
     expose:
       - "8000" # This is the port where the miner accepts connections.
     networks:
@@ -13,13 +13,13 @@ services:
   bazo-client:
     container_name: bazo-client
     build:
-      context: ../ # We need the miner context as well when we build the client.
+      context: ../ # We need the miner context as well when we build the client. Thus, we use the parent directory as context.
       dockerfile: bazo-client/Dockerfile # Dockerfile is relative to 'context' set inabove (!!!)
     depends_on: 
       - bazo-miner # The miner must be launched before the client.
     volumes:
-      - ../bazo-client:/go/src/bazo-client/
-      - ../bazo-miner:/go/src/bazo-miner/
+      - ../bazo-client:/go/src/bazo-client/ # Map host directory to container directory. The files will be synced.
+      - ../bazo-miner:/go/src/bazo-miner/ # Map host directory to container directory. The files will be synced.
     ports:
       - "80:8010" # The REST API is available on api.bazo.local:80. We map this port to 8010 in the container where the client is listening.
     networks:
@@ -28,15 +28,15 @@ services:
   bazo-block-explorer:
     container_name: bazo-block-explorer
     build:
-      context: ../ # We need the miner context as well when we build the explorer.
+      context: ../ # We need the miner context as well when we build the explorer. Thus, we use the parent directory as context.
       dockerfile: bazo-block-explorer/Dockerfile # Dockerfile is relative to 'context' set inabove (!!!)
     depends_on:
       - psql
       - bazo-miner
       - bazo-client
     volumes:
-      - ../bazo-block-explorer:/go/src/bazo-block-explorer/
-      - ../bazo-miner:/go/src/bazo-miner/
+      - ../bazo-block-explorer:/go/src/bazo-block-explorer/ # Map host directory to container directory. The files will be synced.
+      - ../bazo-miner:/go/src/bazo-miner/ # Map host directory to container directory. The files will be synced.
     ports:
       - "8080:8080" # The block explorer is available on bazo.local:8080 on the host machine.
     networks:
