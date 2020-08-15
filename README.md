@@ -133,3 +133,10 @@ In the root of this directorly, you find the `docker-compose.yml` file. It ties 
 In the `docker-compose.yml` file you define all the services that make up your application. Here you can define port forwarding, networking, dependencies between services.
 
 In the directory of each project `bazo-miner`, `bazo-client`, and `bazo-block-explorer`  you find a `Dockerfile`. It defines the docker-image on which the container is based. Here you install, build and define a RUN or CMD command for your container.
+
+
+For example: in the `bazo-client/Dockerfile`
+```shell script
+# Define the start command when this container is run.
+CMD ["/bazo-client", "rest"]
+```
