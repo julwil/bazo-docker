@@ -53,7 +53,7 @@ cd bazo-block-explorer
 ```
 next, we need to set entries for the hosts file of our machine
 
-#####Windows: 
+####Windows: 
 - open the Windows Notepad application with **admin rights**. (Run as Administrator)
 - Open `C:\Windows\System32\drivers\etc\hosts` file and add the following entries at the end of the file.
 These entries will route a request to http://bazo.local and http://api.bazo.local to the IP 127.0.0.1 (your localhost).
@@ -64,7 +64,7 @@ These entries will route a request to http://bazo.local and http://api.bazo.loca
 ```
 - Save the file.
 
-#####Mac/Linux: 
+####Mac/Linux: 
 - open a new Terminal session.
 - When prompted, enter your password.
 Open the hosts file in your editor of choice. The hosts file is located 
